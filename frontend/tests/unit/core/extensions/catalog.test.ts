@@ -145,3 +145,71 @@ test("workflow metadata is localized, explains Phase 2 limits and merges its reg
     expect(matches[0]?.loaded).toBe(workflow);
   }
 });
+
+test("WeKnora discovery is localized without implying runtime activation", () => {
+  for (const [copy, title] of [
+    [enUS.extensions.catalog, "WeKnora knowledge retrieval"],
+    [zhCN.extensions.catalog, "WeKnora 知识检索"],
+  ] as const) {
+    const entry = extensionDirectory([], copy).find(
+      (item) => item.package === "deerflow-extension-weknora",
+    );
+    expect(entry).toMatchObject({
+      id: "catalog/weknora",
+      title,
+      guide:
+        "https://github.com/bytedance/deer-flow/tree/main/examples/deerflow-extension-weknora#readme",
+    });
+    expect(entry?.description).toBeTruthy();
+    expect(entry?.loaded).toBeUndefined();
+  }
+});
+
+test("LightRAG discovery is localized without claiming a runtime registration", () => {
+  for (const copy of [enUS.extensions.catalog, zhCN.extensions.catalog]) {
+    const entry = extensionDirectory([], copy).find(
+      (item) => item.package === "deerflow-extension-lightrag",
+    );
+    expect(entry?.title).toBe("LightRAG");
+    expect(entry?.description).toBe(copy.lightrag.description);
+    expect(entry?.loaded).toBeUndefined();
+  }
+});
+
+test("knowledge management discovery merges its namespace without implying activation", () => {
+  const management = { ...contribution, namespace: "knowledge-management" };
+  for (const [copy, title] of [
+    [enUS.extensions.catalog, "Knowledge ingestion and processing"],
+    [zhCN.extensions.catalog, "知识入库与处理"],
+  ] as const) {
+    const entry = extensionDirectory([], copy).find(
+      (item) => item.package === "deerflow-extension-knowledge-management",
+    );
+    expect(entry?.id).toBe(management.namespace);
+    expect(entry?.title).toBe(title);
+    expect(entry?.loaded).toBeUndefined();
+    const matches = extensionDirectory([management], copy).filter(
+      (item) => item.id === management.namespace,
+    );
+    expect(matches).toHaveLength(1);
+    expect(matches[0]?.loaded).toBe(management);
+  }
+});
+
+test("knowledge platform discovery is localized and does not imply a management page", () => {
+  for (const [copy, title] of [
+    [enUS.extensions.catalog, "Knowledge spaces and connections"],
+    [zhCN.extensions.catalog, "知识空间与连接"],
+  ] as const) {
+    const entry = extensionDirectory([], copy).find(
+      (item) => item.package === "deerflow-extension-knowledge-platform",
+    );
+    expect(entry?.id).toBe("knowledge-platform");
+    expect(entry?.title).toBe(title);
+    expect(entry?.description).toBe(copy.knowledgePlatform.description);
+    expect(entry?.guide).toBe(
+      "https://github.com/bytedance/deer-flow/tree/main/examples/deerflow-extension-knowledge-platform#readme",
+    );
+    expect(entry?.loaded).toBeUndefined();
+  }
+});
